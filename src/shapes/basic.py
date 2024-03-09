@@ -67,6 +67,20 @@ def hash_square(d):
     tur.home()
     tur.pendown()
 
+def frame_square(d):
+    size = d
+    pos = d / 2
+    diag_half = (d * math.sqrt(2)) / 2
+
+    tur.penup()
+    tur.goto(-pos, -pos)
+    tur.pendown()
+    square(size, 270)
+
+    tur.penup()
+    tur.home()
+    tur.pendown()
+
 def diamond(size: int=50):
     tur.right(45)
     tur.forward(size)

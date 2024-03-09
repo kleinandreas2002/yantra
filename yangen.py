@@ -12,7 +12,7 @@ from PIL import Image
 from pathlib import Path
 from typing_extensions import Annotated
 
-from src.shapes.basic import hash_square
+from src.shapes.basic import hash_square, frame_square
 from src.shapes.frame import plus_frame, corner_frame, triangle_frame
 from src.shapes.medium import inner_circles, leaf, line_dots
 
@@ -26,7 +26,8 @@ MAP = {
     'leaf': leaf,
     'line_dots': line_dots,
     'hash_square': hash_square,
-    'inner_circles': inner_circles
+    'inner_circles': inner_circles,
+    'frame_square': frame_square,
 }
 
 def mapper(data: dict, location: str):
@@ -52,14 +53,16 @@ def rep_mapper(shape: dict):
         if func and args: func(**args)
 
 
-def save_image():
+def save_image(save_path: Path, export: Path):
     tur.hideturtle()
+    
     canvas = tur.Screen().getcanvas()
-    canvas.postscript(file='export/mandala.eps')
-    eps_image = Image.open('export/mandala.eps')
+    file_wo_ext = export / save_path.stem
+    canvas.postscript(file=file_wo_ext.as_posix()+".eps")
+    eps_image = Image.open(file_wo_ext.as_posix()+".eps")
 
-    rbga_image = eps_image.convert('RGBA')
-    rbga_image.save('export/mandala.png', 'PNG', optimize=True, quality=95)
+    rbga_image = eps_image.convert("RGBA")
+    rbga_image.save(file_wo_ext.as_posix()+".png", "PNG", optimize=True, quality=100, )
     rbga_image.close()
 
     eps_image.close()
@@ -71,6 +74,7 @@ app = typer.Typer()
 @app.command()
 def hello(
     input: Annotated[Path, typer.Option(help='*.toml file')],
+    export: Annotated[Path, typer.Option(help='path to save export files')]="export",
     speed: int=100,
 ):
     data = toml.loads(input.read_text())
@@ -83,7 +87,7 @@ def hello(
     mapper(data, 'edges')
     mapper(data, 'inner')
 
-    save_image()
+    save_image(input, export)
 
 
 if __name__ == "__main__":
